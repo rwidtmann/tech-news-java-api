@@ -1,7 +1,6 @@
 package com.technews.controller;
 
 import com.technews.model.Comment;
-import com.technews.model.Greeting;
 import com.technews.model.Post;
 import com.technews.model.User;
 import com.technews.repository.PostRepository;
@@ -11,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.Arrays;
@@ -31,6 +28,7 @@ public class HomepageController {
     @Autowired
     VoteRepository voteRepository;
 
+
     @GetMapping("/homePage/posts")
     public String getAllPosts(Model model) {
         List<Post> postList = postRepository.findAll();
@@ -43,6 +41,12 @@ public class HomepageController {
         model.addAttribute("postList", postList);
 
         return "homepage-main";
+    }
+
+
+    @GetMapping("/login")
+    public String login() {
+        return "login-main";
     }
 
 

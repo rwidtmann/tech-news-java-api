@@ -1,5 +1,6 @@
 package com.technews.controller;
 
+import com.technews.exception.NoMailException;
 import com.technews.model.Post;
 import com.technews.model.User;
 import com.technews.repository.UserRepository;
@@ -47,8 +48,25 @@ public class UserController {
     }
 
 
+    @PostMapping("/users/login")
+    public User login(@RequestBody User user) throws NoMailException, Exception {
+
+        User loginUser = repository.findUserByEmail(user.getEmail());
+
+        try{
+          if(loginUser.equals(null)) {
+
+          }
+        } catch (NullPointerException e) {
+            throw new NoMailException("No user address found!");
+        }
+
+        return loginUser;
+    }
+
+
     @PostMapping("/users")
-    @ResponseStatus(HttpStatus.CREATED)
+    //@ResponseStatus(HttpStatus.CREATED)
     public User addUser(@RequestBody User user) {
         return repository.save(user);
     }
