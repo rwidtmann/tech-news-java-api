@@ -1,0 +1,20 @@
+{{>header}}
+
+
+<article class="post">
+        <div class="title">
+            <a href="{{post.postUrl}}" target="_blank">{{post.title}}</a>
+            <span>({{post.postUrl}})</span>
+        </div>
+        <div class="meta">
+            {{post.voteCount}} point(s) by {{post.userName}} on
+            {{post.postedAt}}
+            |
+            <a href="/post/{{post.id}}">{{post.comments.size}} comment(s)</a>
+        </div>
+</article>
+
+
+{{>footer}}
+
+

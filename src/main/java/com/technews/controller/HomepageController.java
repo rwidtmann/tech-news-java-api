@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,6 +42,20 @@ public class HomepageController {
         request.getSession().invalidate();
         return "login-main";
     }
+
+
+    @GetMapping("/post/{id}")
+    public String getPostById(@PathVariable int id, Model model) {
+        Post post = postRepository.getOne(id);
+        post.setVoteCount(voteRepository.countPostByPostId(post.getId()));
+
+        User user = userRepository.getOne(post.getUserId());
+        post.setUserName(user.getUsername());
+
+        model.addAttribute("post", post);
+        return "single-post-main";
+    }
+
 
     @GetMapping("/homePage/posts")
     public String getAllPosts(Model model, HttpServletRequest request) {
