@@ -47,7 +47,7 @@ async function loginFormHandler(event) {
     });
 
     if (response.ok) {
-      document.location.replace('/api/homePage/posts');
+      document.location.replace('/api/homePage/loggedIn');
     } else {
       alert(response.statusText);
     }

@@ -6,9 +6,11 @@ import com.technews.model.User;
 import com.technews.repository.UserRepository;
 import com.technews.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +51,7 @@ public class UserController {
 
 
     @PostMapping("/users/login")
-    public User login(@RequestBody User user) throws NoMailException, Exception {
+    public User login(@RequestBody User user, HttpServletRequest request) throws NoMailException, Exception {
 
         User loginUser = repository.findUserByEmail(user.getEmail());
 
@@ -61,6 +63,7 @@ public class UserController {
             throw new NoMailException("No user address found!");
         }
 
+        request.getSession().setAttribute("LOGIN_USER", loginUser);
         return loginUser;
     }
 

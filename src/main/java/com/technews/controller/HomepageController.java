@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,8 +30,20 @@ public class HomepageController {
     VoteRepository voteRepository;
 
 
+    @GetMapping("/login")
+    public String login() {
+        return "login-main";
+    }
+
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request) {
+        request.getSession().invalidate();
+        return "login-main";
+    }
+
     @GetMapping("/homePage/posts")
-    public String getAllPosts(Model model) {
+    public String getAllPosts(Model model, HttpServletRequest request) {
         List<Post> postList = postRepository.findAll();
         for (Post p : postList) {
             p.setVoteCount(voteRepository.countPostByPostId(p.getId()));
@@ -43,21 +56,32 @@ public class HomepageController {
         return "homepage-main";
     }
 
+    @GetMapping("/homePage/loggedIn")
+    public String loggedInHomePage(Model model, HttpServletRequest request) {
 
-    @GetMapping("/login")
-    public String login() {
-        return "login-main";
+        System.out.println("In /homePage/loggedIn");
+
+        List<Post> postList = postRepository.findAll();
+        for (Post p : postList) {
+            p.setVoteCount(voteRepository.countPostByPostId(p.getId()));
+            User user = userRepository.getOne(p.getUserId());
+            p.setUserName(user.getUsername());
+        }
+
+        model.addAttribute("postList", postList);
+
+        request.getSession().setAttribute("LOGIN_SESSION", postList);
+
+        //request.getSession().invalidate();
+        if(!request.getSession().getAttribute("LOGIN_SESSION").equals(null)) {
+            System.out.println("Session Varialbe is present");
+        } else {
+            System.out.println("Session variable IS NOT present");
+        }
+
+        return "logged-in-homepage-main";
     }
 
-
-    @GetMapping("/mustache")
-    public String mustacheDemo(Model model) {
-        //model.addAttribute("user", new User());
-        model.addAttribute("message", "This is the test");
-        model.addAttribute("message2", "Changing message 2");
-
-        return "maybe-main";
-    }
 
     @GetMapping("/homepage")
     public String getHomepage(Model model) {
@@ -78,6 +102,8 @@ public class HomepageController {
         return "homepage-main";
     }
 
+
+
 //    @GetMapping("/homeRoutes")
 //    public String greetingForm(Model model) {
 //        //model.addAttribute("user", new User());
@@ -88,4 +114,16 @@ public class HomepageController {
 //    public String greetingSubmit(@ModelAttribute User user) {
 //        return "result";
 //    }
+
+
+//    @GetMapping("/mustache")
+//    public String mustacheDemo(Model model) {
+//        //model.addAttribute("user", new User());
+//        model.addAttribute("message", "This is the test");
+//        model.addAttribute("message2", "Changing message 2");
+//
+//        return "maybe-main";
+//    }
+
+
 }
