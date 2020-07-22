@@ -1,14 +1,18 @@
 package com.technews.controller;
 
 import com.technews.model.Post;
+import com.technews.model.User;
 import com.technews.model.Vote;
 import com.technews.repository.PostRepository;
+import com.technews.repository.UserRepository;
 import com.technews.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +25,9 @@ public class PostController {
 
     @Autowired
     VoteRepository voteRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @GetMapping("/posts")
     public List<Post> getAllPosts(Model model) {
@@ -35,6 +42,8 @@ public class PostController {
     @GetMapping("/posts/{id}")
     public Post getPost(@PathVariable Integer id) {
         Post returnPost = repository.getOne(id);
+        User tempUser = userRepository.getOne(returnPost.getUserId());
+        returnPost.setUserName(tempUser.getUsername());
         returnPost.setVoteCount(voteRepository.countPostByPostId(returnPost.getId()));
 
         return returnPost;
@@ -57,10 +66,18 @@ public class PostController {
 
 
     @PutMapping("/posts/upvote")
-    public Post addVote(@RequestBody Vote vote) {
-        voteRepository.save(vote);
-        Post returnPost = repository.getOne(vote.getPostId());
-        returnPost.setVoteCount(voteRepository.countPostByPostId(vote.getPostId()));
+    public Post addVote(@RequestBody Vote vote, HttpServletRequest request) {
+        Post returnPost = null;
+
+        User sessionUser = (User) request.getSession().getAttribute("SESSION_USER");
+        if(!sessionUser.equals(null)) {
+            vote.setUserId(sessionUser.getId());
+            voteRepository.save(vote);
+
+            returnPost = repository.getOne(vote.getPostId());
+            returnPost.setVoteCount(voteRepository.countPostByPostId(vote.getPostId()));
+        }
+        
 
         return returnPost;
     }

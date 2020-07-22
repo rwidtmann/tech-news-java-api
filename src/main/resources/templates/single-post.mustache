@@ -14,6 +14,33 @@
         </div>
 </article>
 
+<form class="comment-form">
+    <div>
+        <textarea name="comment-body"></textarea>
+    </div>
+
+    <div>
+        <button type="submit" class="comment-form">add comment</button>
+        <button type="button" class="upvote-btn">upvote</button>
+    </div>
+</form>
+
+<div class="comments">
+    {{#commentList}}
+        <section class="comment">
+            <div class="meta">
+                {{post.userName}} on {{post.postedAt}}
+            </div>
+            <div class="text">
+                {{commentText}}
+            </div>
+        </section>
+    {{/commentList}}
+</div>
+
+<script src="/js/comment.js"></script>
+<script src="/js/upvote.js"></script>
+
 
 {{>footer}}
 

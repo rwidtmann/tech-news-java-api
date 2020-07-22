@@ -1,17 +1,15 @@
 package com.technews.controller;
 
-import com.technews.exception.NoMailException;
+import com.technews.exception.NoEmailException;
 import com.technews.model.Post;
 import com.technews.model.User;
 import com.technews.repository.UserRepository;
 import com.technews.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -51,20 +49,22 @@ public class UserController {
 
 
     @PostMapping("/users/login")
-    public User login(@RequestBody User user, HttpServletRequest request) throws NoMailException, Exception {
+    public User login(@RequestBody User user, HttpServletRequest request) throws NoEmailException, Exception {
 
-        User loginUser = repository.findUserByEmail(user.getEmail());
+        User sessionUser = repository.findUserByEmail(user.getEmail());
 
         try{
-          if(loginUser.equals(null)) {
+          if(sessionUser.equals(null)) {
 
           }
         } catch (NullPointerException e) {
-            throw new NoMailException("No user address found!");
+
+            throw new NoEmailException("No user address found!");
         }
 
-        request.getSession().setAttribute("LOGIN_USER", loginUser);
-        return loginUser;
+        request.getSession().setAttribute("SESSION_USER", sessionUser);
+
+        return sessionUser;
     }
 
 
@@ -93,5 +93,25 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable int id) {
         repository.deleteById(id);
+    }
+
+
+    private boolean isLoggedIn(User user, HttpServletRequest request) {
+//        String sessionId = request.getSession().getId();
+//        System.out.println("Session Id is: " + sessionId);
+//
+//        request.getSession().getId()
+
+        String sessionAttribute = (String) request.getSession().getAttribute(user.getEmail());
+        boolean result = false;
+        if(sessionAttribute.equals(user.getEmail())) {
+            System.out.println("User is logged in...");
+            result = true;
+        } else {
+            System.out.println("User is NOT logged in...");
+            result = false;
+        }
+
+        return result;
     }
 }

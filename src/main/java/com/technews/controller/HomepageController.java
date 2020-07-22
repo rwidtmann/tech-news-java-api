@@ -1,8 +1,11 @@
 package com.technews.controller;
 
+import com.sun.xml.bind.v2.TODO;
+import com.technews.exception.NoEmailException;
 import com.technews.model.Comment;
 import com.technews.model.Post;
 import com.technews.model.User;
+import com.technews.repository.CommentRepository;
 import com.technews.repository.PostRepository;
 import com.technews.repository.UserRepository;
 import com.technews.repository.VoteRepository;
@@ -14,8 +17,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/api")
@@ -29,6 +34,9 @@ public class HomepageController {
 
     @Autowired
     VoteRepository voteRepository;
+
+    @Autowired
+    CommentRepository commentRepository;
 
 
     @GetMapping("/login")
@@ -45,15 +53,24 @@ public class HomepageController {
 
 
     @GetMapping("/post/{id}")
-    public String getPostById(@PathVariable int id, Model model) {
+    public String getPostById(@PathVariable int id, Model model, HttpServletRequest request) throws NoEmailException {
+
+        User sessionUser = (User) request.getSession().getAttribute("SESSION_USER");
+
         Post post = postRepository.getOne(id);
         post.setVoteCount(voteRepository.countPostByPostId(post.getId()));
 
-        User user = userRepository.getOne(post.getUserId());
-        post.setUserName(user.getUsername());
+        User postUser = userRepository.getOne(post.getUserId());
+        post.setUserName(postUser.getUsername());
+
+        List<Comment> commentList = commentRepository.findAllCommentsByPostId(post.getId());
 
         model.addAttribute("post", post);
-        return "single-post-main";
+        model.addAttribute("sessionUser", sessionUser);
+        model.addAttribute("commentList", commentList);
+        //model.addAttribute("loggedIn", loggedIn);    // rjw
+
+        return "single-post-main";      // rjw testing
     }
 
 
@@ -73,7 +90,6 @@ public class HomepageController {
 
     @GetMapping("/homePage/loggedIn")
     public String loggedInHomePage(Model model, HttpServletRequest request) {
-
         System.out.println("In /homePage/loggedIn");
 
         List<Post> postList = postRepository.findAll();
@@ -88,7 +104,7 @@ public class HomepageController {
         request.getSession().setAttribute("LOGIN_SESSION", postList);
 
         //request.getSession().invalidate();
-        if(!request.getSession().getAttribute("LOGIN_SESSION").equals(null)) {
+        if (!request.getSession().getAttribute("LOGIN_SESSION").equals(null)) {
             System.out.println("Session Varialbe is present");
         } else {
             System.out.println("Session variable IS NOT present");
@@ -116,7 +132,6 @@ public class HomepageController {
         model.addAttribute("user", user);
         return "homepage-main";
     }
-
 
 
 //    @GetMapping("/homeRoutes")
