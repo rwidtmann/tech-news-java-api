@@ -7,9 +7,8 @@ async function upvoteClickHandler(event) {
     window.location.toString().split('/').length - 1
   ];
 
-//  const uId = document.querySelector('#user-id').value.trim();
 
-  const response = await fetch('/api/posts/upvote', {
+  const response = await fetch('/posts/upvote', {
     method: 'PUT',
     body: JSON.stringify({
         postId: id

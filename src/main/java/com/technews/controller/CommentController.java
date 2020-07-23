@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+//@RequestMapping("/api")
 public class CommentController {
 
     @Autowired
@@ -32,20 +32,19 @@ public class CommentController {
 
     @PostMapping("/comments")
     @ResponseStatus(HttpStatus.CREATED)
-    public Comment createComment(@RequestBody Comment comment, HttpServletRequest request) throws NoEmailException, Exception {
-        User sessionUser = (User) request.getSession().getAttribute("SESSION_USER");
+    public String createComment(@RequestBody Comment comment, HttpServletRequest request) throws NoEmailException, Exception {
+        String returnValue = "";
 
-        try{
-            if(sessionUser.equals(null)) {
+        if(request.getSession(false) != null) {
+            User sessionUser = (User) request.getSession().getAttribute("SESSION_USER");
 
-            }
-        } catch (NullPointerException e) {
-            throw new NoEmailException("User is not logged in");
+            comment.setUserId(sessionUser.getId());
+            repository.save(comment);
+        } else {
+            returnValue = "login-main";
         }
 
-
-        comment.setUserId(sessionUser.getId());
-        return repository.save(comment);
+        return returnValue;
     }
 
 

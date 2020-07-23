@@ -12,12 +12,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api")
+//@RequestMapping("/api")
 public class PostController {
 
     @Autowired
@@ -40,46 +38,80 @@ public class PostController {
 
 
     @GetMapping("/posts/{id}")
-    public Post getPost(@PathVariable Integer id) {
-        Post returnPost = repository.getOne(id);
-        User tempUser = userRepository.getOne(returnPost.getUserId());
-        returnPost.setUserName(tempUser.getUsername());
-        returnPost.setVoteCount(voteRepository.countPostByPostId(returnPost.getId()));
+    public String getPost(@PathVariable Integer id, HttpServletRequest request) {
+        String returnValue = "";
 
-        return returnPost;
+        if(request.getSession(false) != null) {
+            Post returnPost = repository.getOne(id);
+            User tempUser = userRepository.getOne(returnPost.getUserId());
+            returnPost.setUserName(tempUser.getUsername());
+            returnPost.setVoteCount(voteRepository.countPostByPostId(returnPost.getId()));
+            returnValue = "";
+        } else {
+            returnValue = "login-main";
+        }
+
+        return returnValue;
     }
 
 
     @PostMapping("/posts")
     @ResponseStatus(HttpStatus.CREATED)
-    public Post addPost(@RequestBody Post post) {
-        return repository.save(post);
+    public String addPost(@RequestBody Post post, HttpServletRequest request) {
+        String returnValue = "";
+
+        if(request.getSession(false) != null) {
+            User sessionUser = (User) request.getSession().getAttribute("SESSION_USER");
+            post.setUserId(sessionUser.getId());
+            repository.save(post);
+
+            returnValue = "";
+        } else {
+            returnValue = "login-main";
+        }
+
+        return returnValue;
     }
 
 
     @PutMapping("/posts/{id}")
-    public Post updatePost(@PathVariable int id, @RequestBody Post post) {
-        Post tempPost = repository.getOne(id);
-        tempPost.setTitle(post.getTitle());
-        return repository.save(tempPost);
+    public String updatePost(@PathVariable int id, @RequestBody Post post, HttpServletRequest request) {
+        String returnValue = "";
+
+        if(request.getSession(false) != null) {
+            Post tempPost = repository.getOne(id);
+            tempPost.setTitle(post.getTitle());
+            repository.save(tempPost);
+
+            returnValue = "";
+        } else {
+            returnValue = "login-main";
+        }
+
+        return returnValue;
     }
 
 
     @PutMapping("/posts/upvote")
-    public Post addVote(@RequestBody Vote vote, HttpServletRequest request) {
-        Post returnPost = null;
+    public String addVote(@RequestBody Vote vote, HttpServletRequest request) {
+        String returnValue = "";
 
-        User sessionUser = (User) request.getSession().getAttribute("SESSION_USER");
-        if(!sessionUser.equals(null)) {
+        if(request.getSession(false) != null) {
+            Post returnPost = null;
+
+            User sessionUser = (User) request.getSession().getAttribute("SESSION_USER");
             vote.setUserId(sessionUser.getId());
             voteRepository.save(vote);
 
             returnPost = repository.getOne(vote.getPostId());
             returnPost.setVoteCount(voteRepository.countPostByPostId(vote.getPostId()));
-        }
-        
 
-        return returnPost;
+            returnValue = "";
+        } else {
+            returnValue = "login-main";
+        }
+
+        return returnValue;
     }
 
 
