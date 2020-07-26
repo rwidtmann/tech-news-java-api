@@ -19,6 +19,8 @@ public class User implements Serializable {
     @Column(unique = true)
     private String email;
     private String password;
+    @Transient
+    boolean loggedIn;
 
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Post> posts;
@@ -74,6 +76,14 @@ public class User implements Serializable {
         this.password = password;
     }
 
+    public boolean isLoggedIn() {
+        return loggedIn;
+    }
+
+    public void setLoggedIn(boolean loggedIn) {
+        this.loggedIn = loggedIn;
+    }
+
     public List<Post> getPosts() {
         return posts;
     }
@@ -103,7 +113,8 @@ public class User implements Serializable {
         if (this == o) return true;
         if (!(o instanceof User)) return false;
         User user = (User) o;
-        return Objects.equals(getId(), user.getId()) &&
+        return isLoggedIn() == user.isLoggedIn() &&
+                Objects.equals(getId(), user.getId()) &&
                 Objects.equals(getUsername(), user.getUsername()) &&
                 Objects.equals(getEmail(), user.getEmail()) &&
                 Objects.equals(getPassword(), user.getPassword()) &&
@@ -114,7 +125,7 @@ public class User implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getUsername(), getEmail(), getPassword(), getPosts(), getVotes(), getComments());
+        return Objects.hash(getId(), getUsername(), getEmail(), getPassword(), isLoggedIn(), getPosts(), getVotes(), getComments());
     }
 
     @Override
@@ -124,6 +135,7 @@ public class User implements Serializable {
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", loggedIn=" + loggedIn +
                 ", posts=" + posts +
                 ", votes=" + votes +
                 ", comments=" + comments +

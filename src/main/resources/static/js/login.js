@@ -2,6 +2,8 @@
 async function loginFormHandler(event) {
   event.preventDefault();
 
+  alert("In login.js now")
+
   const email = document.querySelector('#email-login').value.trim();
   const password = document.querySelector('#password-login').value.trim();
 
@@ -28,6 +30,8 @@ async function loginFormHandler(event) {
 
 async function signupFormHandler(event) {
   event.preventDefault();
+
+    alert("In signup.js now")
 
    const username = document.querySelector('#username-signup').value.trim();
    const email = document.querySelector('#email-signup').value.trim();

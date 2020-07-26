@@ -70,6 +70,8 @@ public class HomepageController {
         if(request.getSession(false) != null){
             User sessionUser = (User) request.getSession().getAttribute("SESSION_USER");
 
+            System.out.println("Session User from HomepageController before calling single-post-main.mustache loggedIn value is: " + sessionUser.isLoggedIn());   // rjw
+
             Post post = postRepository.getOne(id);
             post.setVoteCount(voteRepository.countPostByPostId(post.getId()));
 
@@ -80,11 +82,12 @@ public class HomepageController {
 
             model.addAttribute("post", post);
             model.addAttribute("sessionUser", sessionUser);
+            model.addAttribute("loggedIn", sessionUser.isLoggedIn());
             model.addAttribute("commentList", commentList);
 
             return "single-post-main";      // rjw testing
         } else {
-            return "login-main";
+            return "login-main";     // rjw
         }
 
     }

@@ -54,17 +54,42 @@ public class UserController {
         User sessionUser = repository.findUserByEmail(user.getEmail());
 
         try{
-          if(sessionUser.equals(null)) {
+            if(sessionUser.equals(null)) {
 
-          }
+            }
         } catch (NullPointerException e) {
 
             throw new NoEmailException("No user address found!");
         }
 
+        sessionUser.setLoggedIn(true);
         request.getSession().setAttribute("SESSION_USER", sessionUser);
 
         return sessionUser;
+
+
+//        List<User> userList = repository.findAll();
+//        for (User u : userList) {
+//            List<Post> postList = u.getPosts();
+//            for (Post p : postList) {
+//                p.setVoteCount(voteRepository.countPostByPostId(p.getId()));
+//            }
+//        }
+//
+//        return userList;
+
+
+//        String returnValue = "";
+//
+//        if(request.getSession(false) != null) {
+//            User sessionUser = repository.findUserByEmail(user.getEmail());
+//            request.getSession().setAttribute("SESSION_USER", sessionUser);
+//            returnValue = "dashboard-main";
+//        } else {
+//            returnValue = "login-main";
+//        }
+//
+//        return returnValue;
     }
 
 
@@ -85,7 +110,6 @@ public class UserController {
         }
 
         return user;
-
     }
 
 
@@ -96,22 +120,23 @@ public class UserController {
     }
 
 
-    private boolean isLoggedIn(User user, HttpServletRequest request) {
-//        String sessionId = request.getSession().getId();
-//        System.out.println("Session Id is: " + sessionId);
+//    private boolean isLoggedIn(User user, HttpServletRequest request) {
+////        String sessionId = request.getSession().getId();
+////        System.out.println("Session Id is: " + sessionId);
+////
+////        request.getSession().getId()
 //
-//        request.getSession().getId()
+//        String sessionAttribute = (String) request.getSession().getAttribute(user.getEmail());
+//        boolean result = false;
+//        if(sessionAttribute.equals(user.getEmail())) {
+//            System.out.println("User is logged in...");
+//            result = true;
+//        } else {
+//            System.out.println("User is NOT logged in...");
+//            result = false;
+//        }
+//
+//        return result;
+//    }
 
-        String sessionAttribute = (String) request.getSession().getAttribute(user.getEmail());
-        boolean result = false;
-        if(sessionAttribute.equals(user.getEmail())) {
-            System.out.println("User is logged in...");
-            result = true;
-        } else {
-            System.out.println("User is NOT logged in...");
-            result = false;
-        }
-
-        return result;
-    }
 }

@@ -37,7 +37,7 @@ public class CommentController {
 
         if(request.getSession(false) != null) {
             User sessionUser = (User) request.getSession().getAttribute("SESSION_USER");
-
+            System.out.println("Session User from loggedIn value is: ");
             comment.setUserId(sessionUser.getId());
             repository.save(comment);
         } else {

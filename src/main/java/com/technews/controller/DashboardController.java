@@ -59,6 +59,8 @@ public class DashboardController {
 
         if(request.getSession(false) != null) {
             User sessionUser = (User) request.getSession().getAttribute("SESSION_USER");
+
+            System.out.println("Session User from Dashboard page logged in value is: " + sessionUser.isLoggedIn());       // rjw
             Integer userId = sessionUser.getId();
 
             List<Post> postListForUser = postRepository.findAllPostsByUserId(userId);

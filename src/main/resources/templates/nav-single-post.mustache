@@ -1,12 +1,15 @@
-
-
 <div class="wrapper">
     <header>
         <h1>
             <a href="/homePage/loggedIn">Just Tech News</a>
         </h1>
         <nav>
-            <a href="/logout">logout</a>
+            {{#loggedIn}}
+                <a href="/logout">logout</a>
+            {{/loggedIn}}
+            {{^loggedIn}}
+                <a href="/login">login</a>
+            {{/loggedIn}}
         </nav>
     </header>
     <main>
