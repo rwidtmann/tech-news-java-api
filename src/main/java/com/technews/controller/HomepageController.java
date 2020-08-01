@@ -12,10 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,20 +40,29 @@ public class HomepageController {
 
 
     @GetMapping("/login")
-    public String login() {
-        return "login-main";
-    }
+    public String login(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-
-    @GetMapping("/logout")
-    public String logout(HttpServletRequest request) {
-        request.getSession().invalidate();
-        return "login-main";
+        if(request.getSession(false) != null){
+            response.sendRedirect("/");
+            return "";
+        }
+            model.addAttribute("user", new User());
+            return "login";
     }
 
 
     @GetMapping("/")
     public String getAllPosts(Model model, HttpServletRequest request) {
+        User sessionUser = new User();
+
+        if(request.getSession(false) != null){
+            sessionUser = (User) request.getSession().getAttribute("SESSION_USER");
+            model.addAttribute("loggedIn", sessionUser.isLoggedIn());
+        } else {
+            model.addAttribute("loggedIn", false);
+        }
+
+
         List<Post> postList = postRepository.findAll();
         for (Post p : postList) {
             p.setVoteCount(voteRepository.countPostByPostId(p.getId()));
@@ -59,8 +71,9 @@ public class HomepageController {
         }
 
         model.addAttribute("postList", postList);
+        model.addAttribute("loggedIn", sessionUser.isLoggedIn());
 
-        return "homepage-main";
+        return "homepage";
     }
 
 
@@ -69,8 +82,6 @@ public class HomepageController {
 
         if(request.getSession(false) != null){
             User sessionUser = (User) request.getSession().getAttribute("SESSION_USER");
-
-            System.out.println("Session User from HomepageController before calling single-post-main.mustache loggedIn value is: " + sessionUser.isLoggedIn());   // rjw
 
             Post post = postRepository.getOne(id);
             post.setVoteCount(voteRepository.countPostByPostId(post.getId()));
@@ -93,29 +104,30 @@ public class HomepageController {
     }
 
 
+    // rjw - this needs to be removed. Commenting for now to see what will break
     @GetMapping("/homePage/loggedIn")
     public String loggedInHomePage(Model model, HttpServletRequest request) {
-        System.out.println("In /homePage/loggedIn");
 
-        List<Post> postList = postRepository.findAll();
-        for (Post p : postList) {
-            p.setVoteCount(voteRepository.countPostByPostId(p.getId()));
-            User user = userRepository.getOne(p.getUserId());
-            p.setUserName(user.getUsername());
-        }
-
-        model.addAttribute("postList", postList);
-
-        request.getSession().setAttribute("LOGIN_SESSION", postList);
-
-        //request.getSession().invalidate();
-        if (!request.getSession().getAttribute("LOGIN_SESSION").equals(null)) {
-            System.out.println("Session Varialbe is present");
-        } else {
-            System.out.println("Session variable IS NOT present");
-        }
-
-        return "logged-in-homepage-main";
+//        List<Post> postList = postRepository.findAll();
+//        for (Post p : postList) {
+//            p.setVoteCount(voteRepository.countPostByPostId(p.getId()));
+//            User user = userRepository.getOne(p.getUserId());
+//            p.setUserName(user.getUsername());
+//        }
+//
+//        model.addAttribute("postList", postList);
+//
+//        request.getSession().setAttribute("LOGIN_SESSION", postList);
+//
+//        //request.getSession().invalidate();
+//        if (!request.getSession().getAttribute("LOGIN_SESSION").equals(null)) {
+//            System.out.println("Session Varialbe is present");
+//        } else {
+//            System.out.println("Session variable IS NOT present");
+//        }
+//
+//        return "logged-in-homepage-main";
+        return "";
     }
 
 

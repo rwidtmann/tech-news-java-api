@@ -33,6 +33,32 @@ public class DashboardController {
     CommentRepository commentRepository;
 
 
+    @GetMapping("/dashboard")
+    public String getAllPosts(Model model, HttpServletRequest request) throws Exception {
+
+        if(request.getSession(false) != null) {
+            User sessionUser = (User) request.getSession().getAttribute("SESSION_USER");
+
+            Integer userId = sessionUser.getId();
+
+            List<Post> postListForUser = postRepository.findAllPostsByUserId(userId);
+            for (Post p : postListForUser) {
+                p.setVoteCount(voteRepository.countPostByPostId(p.getId()));
+                User user = userRepository.getOne(p.getUserId());
+                p.setUserName(user.getUsername());
+            }
+
+            model.addAttribute("postListForUser", postListForUser);
+            model.addAttribute("loggedIn", sessionUser.isLoggedIn());
+
+            return "dashboard-main";
+        } else {
+            model.addAttribute("loggedIn", false);
+            return "login-main";
+        }
+    }
+
+
     @GetMapping("/dashboard/edit/{id}")
     public String editPost(@PathVariable int id, Model model, HttpServletRequest request) {
 
@@ -53,28 +79,4 @@ public class DashboardController {
         }
     }
 
-
-    @GetMapping("/dashboard")
-    public String getAllPosts(Model model, HttpServletRequest request) throws Exception {
-
-        if(request.getSession(false) != null) {
-            User sessionUser = (User) request.getSession().getAttribute("SESSION_USER");
-
-            System.out.println("Session User from Dashboard page logged in value is: " + sessionUser.isLoggedIn());       // rjw
-            Integer userId = sessionUser.getId();
-
-            List<Post> postListForUser = postRepository.findAllPostsByUserId(userId);
-            for (Post p : postListForUser) {
-                p.setVoteCount(voteRepository.countPostByPostId(p.getId()));
-                User user = userRepository.getOne(p.getUserId());
-                p.setUserName(user.getUsername());
-            }
-
-            model.addAttribute("postListForUser", postListForUser);
-
-            return "dashboard-main";
-        } else {
-            return "login-main";
-        }
-    }
 }
